@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Radio</title>
+
+    <style>
+        html {
+            font-family: sans-serif;
+            line-height: 1.2em;
+            background-color: rgb(0, 0, 0);
+        }
+
+        .player {
+            margin: 0 auto;
+            padding: 1% 1.5em;
+            margin-top: 5%;
+            width: 300px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 1px 1px 5px rgb(139, 139, 139);
+        }
+
+        .header {
+            padding: 3%;
+            text-align: center;
+        }
+
+        #channels {
+            line-height: 2em;
+            list-style-type: none;
+        }
+
+        li {
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            width: 200px;
+            padding: 5px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        li:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="player">
+        <div class="header">
+            <h1 id="title">Playing: ...</h1>
+        </div>
+        <div class="body">
+            <ul id="channels"></ul>
+        </div>
+        <audio id="player" controls autoplay></audio>
+
+    </div>
+
+
+    <script>
+
+        let selectedChannel = 0;
+        let player = document.getElementById("player")
+        const channels = [
+            { id: 0, name: "Glgltz", src: "https://glzwizzlv.bynetcdn.com/glglz_mp3" },
+            { id: 1, name: "Eco", src: "https://eco-live.mediacast.co.il/99fm_aac" },
+            { id: 2, name: "88FM", src: "https://kanliveicy.media.kan.org.il/icy/kan88_mp3" },
+        ]
+
+        const channelsList = document.getElementById("channels");
+
+        channels.forEach(channel => {
+            channelsList.innerHTML += `<li onclick="updateSource('${channel.id}')">${channel.name}</li>`
+        });
+
+
+        let updateSource = (channelId) => {
+            let src = channels.find(channel => channel.id == channelId).src;
+            player.src = src
+            selectedChannel = channelId;
+            changeTitle(channelId);
+        }
+
+        let changeTitle = (channelId) => {
+            let channel = channels.find(channel => channel.id == channelId);
+
+            let t = "Playing: " + channel.name;
+            document.getElementById("title").innerText = t;
+            document.title = t
+        }
+
+        function setControls() {
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                if (selectedChannel > 0) {
+                    selectedChannel--
+                    updateSource(selectedChannel);
+                }
+
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                if (selectedChannel < channels.length - 1) {
+                    selectedChannel++
+                    updateSource(selectedChannel);
+                }
+            });
+
+        }
+
+        updateSource(selectedChannel);
+        setControls();
+        player.volume = 0.4;
+        player.play()
+            .then(_ => setControls())
+            .catch(console.log);
+
+    </script>
+</body>
+
+</html>
